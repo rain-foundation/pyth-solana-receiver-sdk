@@ -1,25 +1,12 @@
 #[cfg(feature = "quickcheck")]
 use quickcheck::Arbitrary;
 use {
-    crate::{
-        check,
-        error::GetPriceError,
-    },
-    anchor_lang::prelude::{
-        borsh::BorshSchema,
-        *,
-    },
-    borsh::{
-        BorshDeserialize,
-        BorshSerialize,
-    },
-    serde::{
-        Deserialize,
-        Serialize,
-    },
+    crate::{check, error::GetPriceError},
+    anchor_lang::prelude::{borsh::BorshSchema, *},
+    borsh::{BorshDeserialize, BorshSerialize},
+    serde::{Deserialize, Serialize},
     solana_program::pubkey::Pubkey,
 };
-
 
 /// Pyth price updates are bridged to all blockchains via Wormhole.
 /// Using the price updates on another chain requires verifying the signatures of the Wormhole guardians.
@@ -61,12 +48,11 @@ impl VerificationLevel {
 /// - `price_message`: The actual price update.
 /// - `posted_slot`: The slot at which this price update was posted.
 #[account]
-#[derive(BorshSchema)]
 pub struct PriceUpdateV2 {
-    pub write_authority:    Pubkey,
+    pub write_authority: Pubkey,
     pub verification_level: VerificationLevel,
-    pub price_message:      PriceFeedMessage,
-    pub posted_slot:        u64,
+    pub price_message: PriceFeedMessage,
+    pub posted_slot: u64,
 }
 
 impl PriceUpdateV2 {
@@ -77,9 +63,9 @@ impl PriceUpdateV2 {
 /// The actual price is `(price ± conf)* 10^exponent`. `publish_time` may be used to check the recency of the price.
 #[derive(PartialEq, Debug, Clone, Copy)]
 pub struct Price {
-    pub price:        i64,
-    pub conf:         u64,
-    pub exponent:     i32,
+    pub price: i64,
+    pub conf: u64,
+    pub exponent: i32,
     pub publish_time: i64,
 }
 
@@ -101,9 +87,9 @@ impl PriceUpdateV2 {
             GetPriceError::MismatchedFeedId
         );
         Ok(Price {
-            price:        self.price_message.price,
-            conf:         self.price_message.conf,
-            exponent:     self.price_message.exponent,
+            price: self.price_message.price,
+            conf: self.price_message.conf,
+            exponent: self.price_message.exponent,
             publish_time: self.price_message.publish_time,
         })
     }
@@ -218,7 +204,6 @@ pub fn get_feed_id_from_hex(input: &str) -> std::result::Result<FeedId, GetPrice
     Ok(feed_id)
 }
 
-
 /// Id of a feed producing the message. One feed produces one or more messages.
 pub type FeedId = [u8; 32];
 
@@ -230,17 +215,17 @@ pub type FeedId = [u8; 32];
     PartialEq,
     Serialize,
     Deserialize,
-    BorshDeserialize,
-    BorshSerialize,
     BorshSchema,
+    AnchorDeserialize,
+    AnchorSerialize,
 )]
 pub struct PriceFeedMessage {
-    pub feed_id:           FeedId,
-    pub price:             i64,
-    pub conf:              u64,
-    pub exponent:          i32,
+    pub feed_id: [u8; 32],
+    pub price: i64,
+    pub conf: u64,
+    pub exponent: i32,
     /// The timestamp of this price update in seconds
-    pub publish_time:      i64,
+    pub publish_time: i64,
     /// The timestamp of the previous price update. This field is intended to allow users to
     /// identify the single unique price update for any moment in time:
     /// for any time t, the unique update is the one such that prev_publish_time < t <= publish_time.
@@ -254,8 +239,8 @@ pub struct PriceFeedMessage {
     /// where the aggregation was unsuccesful. This problem will go away once all publishers have
     /// migrated over to a recent version of pyth-agent.
     pub prev_publish_time: i64,
-    pub ema_price:         i64,
-    pub ema_conf:          u64,
+    pub ema_price: i64,
+    pub ema_conf: u64,
 }
 
 #[cfg(feature = "quickcheck")]

@@ -13,9 +13,8 @@ name = "pyth_solana_receiver_sdk"
 
 
 [dependencies]
-anchor-lang = "0.26.0"
+anchor-lang = { git = "https://github.com/coral-xyz/anchor.git" }
 hex = ">=0.4.3"
-pythnet-sdk = { version = "2.0.0"}
 solana-program = ">=1.14.5"
 serde = { version = "1.0.144", features = ["derive"] }
 quickcheck = { version = "1", optional = true}
